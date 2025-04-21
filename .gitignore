@@ -1,1 +1,7 @@
 /tmp/ 
+# Ignore master key for decrypting credentials and more.
+/config/master.key
+bin/
+app/
+log/
+*.log

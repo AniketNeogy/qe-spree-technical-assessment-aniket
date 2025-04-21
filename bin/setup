@@ -28,6 +28,9 @@ FileUtils.chdir APP_ROOT do
   puts "\n== Seeding database =="
   system! "bin/rails db:seed"
 
+  puts "\n== Loading sample data =="
+  system! "bin/rails spree_sample:load"
+
   puts "\n== Setup credentials =="
   system! "bin/rails g master_key"
   system! "bin/rails g credentials"
