@@ -101,7 +101,11 @@ This will add demo products, variants, option types, and other e-commerce data t
 
 Note: Sample data is automatically loaded when you run `bin/setup` as we have made chnages to setup file, but you can use this command if you need to reload it later.
 
-Images will not be shown for above sample data, we can add them via the admin panel (Username : spree@example.com, Password: spree123)
+Images will not be shown for above sample data, we can add them via the admin panel : 
+```
+Username : spree@example.com
+Password: spree123
+```
 I have added a few images and will be commiting them in the repo for ease of validation.
 
 ## Deployment
