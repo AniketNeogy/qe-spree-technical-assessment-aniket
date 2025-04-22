@@ -4,7 +4,7 @@ import * as process from 'process';
 export default defineConfig({
   testDir: './tests',
   // Adjusted timeout for parallel execution
-  timeout: 120000, 
+  timeout: 300000, 
   expect: {
     timeout: 10000, 
   },
@@ -18,8 +18,9 @@ export default defineConfig({
   reporter: process.env.CI 
     ? [
         ['html'], 
-        ['github'], 
-        ['list']
+        ['github'],
+        ['list'],
+        ['junit', { outputFile: 'results.xml' }]
       ] 
     : 'html',
   use: {
