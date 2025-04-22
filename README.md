@@ -15,7 +15,7 @@ This starter uses:
 * [Solid Cache](https://github.com/rails/solid_cache) for excellent caching and performance
 * PostgreSQL as a database
 
-## Local Installation
+## Local Installation (Mac / Linux)
 
 Please follow [Spree Quickstart guide](https://spreecommerce.org/docs/developer/getting-started/quickstart) to setup your Spree application using the Spree starter.
 
@@ -85,7 +85,7 @@ Follow these steps to set up the development environment on Windows:
 6. **Access the Application**
    - Once the server is running, access the application at http://localhost:3000
 
-## Loading Sample Data
+## Loading Sample Data (Pre-requisite for testing)
 
 If you need to populate the store with sample products, categories, and other test data, run the following command:
 
@@ -167,14 +167,37 @@ The test framework includes comprehensive documentation:
 - [Test Cases](./playwright-test/test-documentation/spree-commerce-test-cases.md) - Detailed test scenarios
 - [Test Coverage Strategy](./playwright-test/test-documentation/spree-commerce-test-coverage-summary.md) - Risk assessment and prioritization
 
-### Framework Capabilities
+## Continuous Integration
 
-The framework includes several advanced capabilities:
+This project includes a CI pipeline built with GitHub Actions that automatically runs tests on code changes and publishes test reports to GitHub Pages.
 
-- **Network Mocking** - Intercepts network requests to simulate successful payment processing
-- **HTML Mocking** - Generates dynamic HTML content to validate order confirmations
-- **Error Handling** - Robust selectors that adapt to different page structures
-- **Test Parameterization** - Data-driven tests with centralized test data
-- **Reusable Components** - Well-structured page objects and utility functions
+### GitHub Actions Workflows
 
-For more details on these capabilities, see the Playwright test framework README.
+- **Playwright Tests**: Runs all tests in parallel using sharding, merges the reports, and publishes them to GitHub Pages
+- **Delete Branch Reports**: Automatically removes test reports for deleted branches to keep the repository clean
+
+### Viewing Test Reports
+
+After tests run in CI, a link to the HTML report will be available in the GitHub Actions workflow summary. The reports are also accessible via GitHub Pages at:
+
+```
+https://{username}.github.io/{repository}/reports/{branch}/{run-id}/{attempt}
+```
+
+### Setting Up GitHub Pages for Reports
+
+To enable GitHub Pages reporting:
+
+1. Push your code to GitHub
+2. The first workflow run will automatically create a `gh-pages` branch
+3. Go to your repository settings → Pages
+4. Set the source to the `gh-pages` branch and save
+
+### CI Benefits
+
+- **Parallel Execution**: Tests are split across multiple workers to reduce execution time
+- **Comprehensive Reporting**: HTML reports show test results with screenshots and traces
+- **Historical Data**: Reports are preserved for each branch and run
+- **Easy Debugging**: Detailed test reports help identify issues quickly
+
+For more information about the CI setup, see the workflow configuration in `.github/workflows/`.
