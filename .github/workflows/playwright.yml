@@ -63,7 +63,7 @@ jobs:
         
     - name: Run Playwright test shard
       working-directory: ./playwright-test
-      run: npx playwright test ${{ matrix.shard.file }}
+      run: npx playwright test ${{ matrix.shard.file }} --reporter=html,junit
       
     - name: Upload test results
       if: always()
@@ -72,8 +72,8 @@ jobs:
         name: playwright-report-${{ matrix.shard.name }}
         path: |
           playwright-test/playwright-report/
-          playwright-test/results.xml
           playwright-test/test-results/
+          playwright-test/junit.xml
 
   merge-reports:
     name: Merge Test Reports
@@ -88,9 +88,10 @@ jobs:
         with:
           node-version: 18
       
-      - name: Install Playwright dependencies
+      - name: Install Playwright and JUnit merger
         run: |
           npm install -g @playwright/test
+          npm install -g junit-report-merger
           
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -100,34 +101,66 @@ jobs:
       - name: Display structure of downloaded files
         run: find all-artifacts -type f | sort
         
-      - name: Create directories for merged reports
+      - name: Find HTML reports
         run: |
-          mkdir -p merged-report
-          mkdir -p merged-results/test-results
+          echo "HTML report files:"
+          find all-artifacts -path "*/playwright-report/*" -type f | grep -v "trace" | head -20
+        
+      - name: Create HTML report directory
+        run: mkdir -p merged-playwright-report
+        
+      - name: Generate simple merged HTML report
+        run: |
+          echo "<html><head><title>All Test Reports</title></head><body>" > merged-playwright-report/index.html
+          echo "<h1>Test Reports</h1><ul>" >> merged-playwright-report/index.html
           
-      - name: Copy test results to merged directory
+          # Create links to each individual report
+          for shard in "Abandoned Cart" "User Registration" "Guest Purchase"; do
+            if [ -d "all-artifacts/playwright-report-$shard/playwright-report" ]; then
+              mkdir -p "merged-playwright-report/$shard"
+              cp -r "all-artifacts/playwright-report-$shard/playwright-report"/* "merged-playwright-report/$shard/"
+              echo "<li><a href='./$shard/index.html'>$shard Tests</a></li>" >> merged-playwright-report/index.html
+            fi
+          done
+          
+          echo "</ul></body></html>" >> merged-playwright-report/index.html
+        
+      - name: Merge JUnit reports
         run: |
-          find all-artifacts -path "*/test-results/*" -type f -exec cp {} merged-results/test-results/ \;
-      
-      - name: Merge HTML reports
-        run: npx playwright merge-reports --reporter html ./merged-results
-        
-      - name: Generate JUnit report from merged results
-        run: npx playwright test --reporter=junit:merged-results.xml --project='' --pass
-        
-      - name: Upload merged report
+          echo "JUnit XML files:"
+          find all-artifacts -name "junit.xml" -type f
+          
+          # Collect JUnit files
+          find all-artifacts -name "junit.xml" -type f > junit-files.txt
+          
+          if [ -s junit-files.txt ]; then
+            echo "Merging JUnit reports..."
+            jrm merged-junit.xml @junit-files.txt
+            echo "Merged JUnit report created"
+            ls -la merged-junit.xml
+          else
+            echo "No JUnit files found to merge"
+            # Create an empty report file to avoid workflow failure
+            echo '<?xml version="1.0" encoding="UTF-8"?><testsuites />' > merged-junit.xml
+          fi
+          
+      - name: Upload merged HTML report
         uses: actions/upload-artifact@v4
         with:
           name: merged-playwright-report
-          path: merged-report
+          path: merged-playwright-report
           
-      - name: Test Report
-        uses: ctrf-io/github-test-reporter@v1
+      - name: Upload merged JUnit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: merged-junit-report
+          path: merged-junit.xml
+          
+      - name: GitHub Test Report
+        uses: dorny/test-reporter@v1
         if: always()
         with:
-          report-path: merged-results.xml
-          title: Playwright Tests
-          summary: true 
-          test-report: true
-          test-list-report: true
-          show-all-tests: true
+          name: Playwright Tests
+          path: merged-junit.xml
+          reporter: java-junit
+          fail-on-error: false
