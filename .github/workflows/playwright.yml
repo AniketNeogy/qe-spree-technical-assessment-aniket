@@ -39,8 +39,9 @@ jobs:
         
     - name: Start Rails server in background
       run: |
-        bin/dev &
-        sleep 30  # Give the server time to start up
+        bin/rails server -b 0.0.0.0 -p 3000 -d
+        echo "Waiting for server to start..."
+        sleep 30
         
     - name: Set up Node.js
       uses: actions/setup-node@v3
