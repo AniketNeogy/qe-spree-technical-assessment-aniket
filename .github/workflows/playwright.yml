@@ -19,14 +19,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Split tests by test class files
-        shard: [1, 2, 3, 4, 5]
-        total-shards: [5]
+        # Simplified to just 2 shards
+        shard: [1, 2]
+        total-shards: [2]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
@@ -52,7 +52,7 @@ jobs:
       
       - name: Upload test results for GitHub Actions Report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.shard }}
           path: playwright-test/test-results.json
@@ -60,7 +60,7 @@ jobs:
       
       - name: Upload HTML report for this shard
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report-${{ matrix.shard }}
           path: playwright-test/playwright-report/
@@ -68,7 +68,7 @@ jobs:
           
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-results-${{ matrix.shard }}
           path: playwright-test/test-results/
@@ -80,10 +80,10 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Download test results
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: all-artifacts
       
@@ -110,10 +110,10 @@ jobs:
     needs: [test]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
       
@@ -128,7 +128,7 @@ jobs:
           npx playwright install
       
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: all-artifacts
       
@@ -137,7 +137,7 @@ jobs:
           npx playwright merge-reports --reporter html ./all-artifacts/playwright-results-*
           
       - name: Upload merged report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report-merged
           path: playwright-report
@@ -155,7 +155,7 @@ jobs:
       HTML_REPORT_URL_PATH: reports/${{ github.ref_name }}/${{ github.run_id }}/${{ github.run_attempt }}
     steps:
       - name: Checkout GitHub Pages Branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: gh-pages
           # Create gh-pages branch if it doesn't exist
@@ -174,7 +174,7 @@ jobs:
           fi
       
       - name: Download merged HTML report
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: playwright-report-merged
           path: ${{ env.HTML_REPORT_URL_PATH }}
