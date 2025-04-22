@@ -2,26 +2,7 @@
 
 ## End-to-End User Scenarios
 
-### E2E-01: Complete Purchase Flow (Guest User)
-
-**Business Value**: Revenue generation, core conversion path
-
-**Description**: Validate the complete purchase process from product discovery to order confirmation for guest users.
-
-**Scenario Steps**:
-1. Browse storefront and search for products
-2. Select a product, choose options, and add to cart
-3. Proceed to checkout as guest
-4. Enter shipping details and select shipping method
-5. Enter payment information and complete order
-6. Verify order confirmation and receipt
-
-**Success Criteria**: 
-- Order is successfully placed
-- Confirmation is displayed with order details
-- Order appears in admin system with correct details
-
-### E2E-02: User Registration and Purchase
+### E2E-01: User Registration and Purchase (New User) using check payment
 
 **Business Value**: Customer acquisition, account creation, and purchase completion
 
@@ -29,16 +10,42 @@
 
 **Scenario Steps**:
 1. Create new user account with valid credentials
-2. Log in with newly created credentials
-3. Browse and add products to cart
-4. Complete checkout using saved payment information
-5. Verify order completion and account history
+2. Browse and add products to cart
+3. Update the address, delivery method and payment information for this order
+4. Verify order completion and account history
 
 **Success Criteria**:
 - User account is successfully created
-- User can log in with new credentials
+- Default address and payment information gets selected and is editable
 - Order is successfully placed
 - Order appears in the user's order history
+
+### E2E-02: Complete Purchase Flow (Guest User) using credit card payment
+
+**Business Value**: Revenue generation, core conversion path
+
+**Description**: Validate the complete purchase process from product discovery to order confirmation for guest users.
+
+**Scenario Steps**:
+1. Browse storefront and search for products
+2. Select a product, choose options (size & quantity), and add to cart
+3. On proceed to checkout, User is allowed to move to checkout page
+4. Add the contact information, shipping address and payment information
+5. Mock payment processing API responses to simulate successful transactions
+6. Verify order confirmation and receipt
+
+**Success Criteria**: 
+- User prompted to login
+- Default address and payment information gets selected and is editable
+- Order is successfully placed with mock payment processing
+- Confirmation is displayed with order details
+- Order appears with correct details in the confirmation page
+
+**Implementation Notes**:
+- Uses API mocking to intercept payment requests
+- Generates realistic HTML for order confirmation
+- Handles multiple payment methods
+- Validates success criteria using robust selectors
 
 ### E2E-03: Abandoned Cart Recovery
 
@@ -59,23 +66,35 @@
 - Product details and quantities are maintained
 - Checkout can be completed successfully after session break
 
-### E2E-04: Payment Processing Validation
+### E2E-04: Payment Processing Validation (API-based)
 
-**Business Value**: Revenue assurance, payment security
+**Business Value**: Revenue assurance, payment security, API validation
 
-**Description**: Test various payment scenarios to ensure proper processing and error handling.
+**Description**: Test various payment scenarios through the API to ensure proper processing and error handling.
 
 **Scenario Steps**:
-1. Add products to cart
-2. Process checkout with valid payment credentials
-3. Attempt checkout with invalid payment credentials
-4. Test alternative payment methods if available
-5. Verify appropriate success and error messages
+1. Authenticate with the API and obtain session tokens
+2. Add products to cart via API calls
+3. Set shipping and billing information via API
+4. Process checkout with valid payment credentials via API
+5. Simulate payment failures and declined transactions
+6. Test alternative payment methods (Credit Cards, Checks)
+7. Verify appropriate success and error responses
 
 **Success Criteria**:
+- API endpoints handle authentication correctly
+- Cart operations work properly through the API
 - Valid payments are processed successfully
-- Invalid payments show appropriate error messages
+- Invalid payments return appropriate error codes and messages
 - Order status updates correctly based on payment outcome
+- API response structures match expected formats
+
+**Implementation Notes**:
+- Uses direct API calls rather than UI interaction
+- Focuses on backend integration testing
+- Mocks external payment provider responses
+- Validates data persistence and integrity
+- Tests both happy path and failure scenarios
 
 ### E2E-05: Product Discovery and Filtering
 

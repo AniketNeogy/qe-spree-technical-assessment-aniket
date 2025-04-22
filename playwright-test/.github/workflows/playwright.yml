@@ -1,0 +1,74 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  test:
+    name: 'Playwright Tests'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: spree_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+      
+      - name: Set up database
+        run: |
+          cd ..
+          bundle install
+          bundle exec rake db:create
+          bundle exec rake db:migrate
+          bundle exec rake spree_sample:load
+      
+      - name: Start Rails server
+        run: |
+          cd ..
+          bundle exec rails server -d
+          sleep 10  # Wait for server to start
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      
+      - name: Run Playwright tests
+        run: npm test
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30 

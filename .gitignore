@@ -5,3 +5,11 @@ bin/
 app/
 log/
 *.log
+storage/*
+playwright-test/node_modules/*
+playwright-test/playwright-report/*
+playwright-test/test-results/*
+test-results/*.json
+playwright-test/*.png
+playwright-test/*.html
+log/*.log

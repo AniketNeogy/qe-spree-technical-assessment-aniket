@@ -1,0 +1,30 @@
+{
+  "name": "playwright-test",
+  "version": "1.0.0",
+  "description": "Playwright test framework for Spree Commerce",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:api": "playwright test --grep @api",
+    "test:e2e": "playwright test --grep @e2e",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report"
+  },
+  "keywords": [
+    "playwright",
+    "testing",
+    "e2e",
+    "api"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@faker-js/faker": "^9.7.0",
+    "@playwright/test": "^1.42.1",
+    "@types/node": "^20.11.30",
+    "typescript": "^5.4.3"
+  }
+}

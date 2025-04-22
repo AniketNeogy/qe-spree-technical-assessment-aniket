@@ -46,21 +46,24 @@ Based on the risk assessment, test scenarios are prioritized as follows:
 
 ### High Priority
 
-1. **E2E-01: Complete Purchase Flow (Guest User)**
-   * Critical revenue path that must function flawlessly
-   * Covers multiple integrated components in a single flow
-
-2. **E2E-02: User Registration and Purchase**
+1. **E2E-01: User Registration and Purchase (New User)**
    * Essential customer acquisition pathway
-   * Combines authentication and purchase flows
+   * Combines account creation, authentication and purchase flows
+   * Validates data persistence for registered users
+
+2. **E2E-02: Complete Purchase Flow (Guest User)**
+   * Critical revenue path that must function flawlessly
+   * Tests guest user is able to checkout successfully
 
 3. **E2E-03: Abandoned Cart Recovery**
    * Significant revenue recovery opportunity
    * Tests session persistence and state management
 
-4. **E2E-04: Payment Processing Validation**
+4. **E2E-04: Payment Processing Validation (API-based)**
    * Direct financial impact
    * Security and compliance implications
+   * Tests API endpoints for payment processing
+   * Validates API response structure and error handling
 
 5. **AM-01: Profile and Preferences Management**
    * Customer retention and data integrity
@@ -94,68 +97,29 @@ Based on the risk assessment, test scenarios are prioritized as follows:
    * Can be automated with Playwright's performance metrics API
    * Should be monitored over time for regression
 
-## Automation Implementation Strategy
-
-### Core Framework Components
-
-The Playwright automation framework will include:
-
-1. **Page Object Models**: Encapsulated UI components for maintainability
-2. **Data Helpers**: Test data generation and management
-3. **API Utilities**: Direct API calls for test setup and verification
-4. **State Handling**: Session and authentication management
-
-### Test Data Approach
-
-1. **Dynamic Test Data**: Generate unique test data for each run
-2. **Cleanup Mechanisms**: Reset application state between tests
-3. **Mock Services**: Simulate external dependencies where needed
-
-### Primary Automation Candidates
+## Primary Automation Candidates
 
 The following scenarios are recommended for immediate implementation in Playwright:
 
-1. **E2E-01: Complete Purchase Flow (Guest User)**
+1. **E2E-01: User Registration and Purchase (New User)**
+   * **Implementation Priority**: Highest
+   * **Rationale**: Validates new user onboarding and purchasing
+   * **Technical Approach**: Sequential flow with account creation, authentication validation, and purchase completion
+
+2. **E2E-02: Complete Purchase Flow (Guest User)**
    * **Implementation Priority**: Highest
    * **Rationale**: Validates the core revenue path
-   * **Technical Approach**: Full end-to-end test with real UI interaction
+   * **Technical Approach**: End-to-end test with guest user makes purchase
 
-2. **E2E-03: Abandoned Cart Recovery**
+3. **E2E-03: Abandoned Cart Recovery**
    * **Implementation Priority**: High
    * **Rationale**: Tests critical state persistence functionality
    * **Technical Approach**: Multi-session test with browser context management
 
-3. **E2E-04: Payment Processing Validation**
+4. **E2E-04: Payment Processing Validation (API-based)**
    * **Implementation Priority**: High
-   * **Rationale**: Ensures payment processing integrity
-   * **Technical Approach**: Combined UI flows with API verification, payment mocking
+   * **Rationale**: Ensures payment processing integrity and API reliability
+   * **Technical Approach**: Direct API calls to backend services, mocking payment provider responses, validation of success and error scenarios
 
-4. **E2E-02: User Registration and Purchase**
-   * **Implementation Priority**: High
-   * **Rationale**: Validates new user onboarding and purchasing
-   * **Technical Approach**: Sequential flow with authentication validation
-
-5. **AM-01: Profile and Preferences Management**
-   * **Implementation Priority**: Medium
-   * **Rationale**: Ensures data persistence and account functionality
-   * **Technical Approach**: Form interaction tests with database verification
-
-## API Testing Strategy
-
-For critical operations, especially payment processing, a hybrid approach is recommended:
-
-1. **UI-Driven Flows**: For user-visible functionality
-2. **API Authentication**: For efficient session management
-3. **API Verification**: For backend state validation
-4. **Mock Responses**: For simulating payment provider responses
-
-## Conclusion
-
-This automation strategy focuses on risk-based test selection to maximize coverage of critical business functions. The prioritized test scenarios represent the core user interactions with the highest impact on business success.
-
-By implementing these automation tests with Playwright, we can:
-
-1. Establish continuous validation of critical e-commerce paths
-2. Provide rapid feedback on key functionality
-3. Build a foundation for expanding test coverage
-4. Support confident releases with automated regression testing 
+**Note**: The reason `AM-01` is not picked is because the number of occurrences of the user flows related to other use cases will be much higher than `AM-01`. 
+Hence considering the regression benefits, `E2E-01` to `E2E-04` were picked up for automation.

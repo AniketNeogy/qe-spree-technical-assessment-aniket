@@ -99,14 +99,14 @@ This will add demo products, variants, option types, and other e-commerce data t
 - Exploring the features of the Spree Commerce platform
 - Demonstrating the application to stakeholders
 
-Note: Sample data is automatically loaded when you run `bin/setup` as we have made chnages to setup file, but you can use this command if you need to reload it later.
+Note: Sample data is automatically loaded when you run `bin/setup` as we have made changes to the setup file, but you can use this command if you need to reload it later.
 
-Images will not be shown for above sample data, we can add them via the admin panel : 
+Images will not be shown for above sample data, we can add them via the admin panel: 
 ```
-Username : spree@example.com
+Username: spree@example.com
 Password: spree123
 ```
-I have added a few images and will be commiting them in the repo for ease of validation.
+I have added a few images and will be committing them in the repo for ease of validation.
 
 ## Deployment
 
@@ -123,3 +123,58 @@ LoadError: Could not open library 'vips.so.42'
 ```
 
 Please check that libvips is installed with `vips -v`, and if it is not installed, follow [installation instructions here](https://www.libvips.org/install.html).
+
+## Testing Framework
+
+This project includes a comprehensive test automation framework built with Playwright and TypeScript. The test framework is designed to validate critical business paths in the Spree Commerce application and provide reliable regression testing.
+
+### Test Framework Architecture
+
+The test automation framework follows best practices including:
+
+- **Page Object Model** - Encapsulation of UI elements and actions
+- **API Integration** - Direct API calls for test setup and verification
+- **Data-Driven Design** - Test data stored separately from test logic
+- **Cross-Browser Testing** - Tests across multiple browsers (Chrome, Firefox, Safari)
+- **Advanced Mocking** - Sophisticated API mocking for payment processing and order confirmation
+
+### Key Test Scenarios
+
+The framework includes high-priority test scenarios selected through risk assessment:
+
+1. **User Registration and Purchase (New User)** - Tests account creation and purchase flow
+2. **Complete Purchase Flow (Guest User)** - Tests guest checkout experience with payment processing
+3. **Abandoned Cart Recovery** - Tests cart persistence across sessions
+4. **Payment Processing Validation** - Tests payment scenarios with mocked responses
+5. **Product Discovery and Filtering** - Validates search and filtering functionality
+
+### Running Tests
+
+To run the tests, navigate to the `playwright-test` directory and follow the instructions in the [test framework README](./playwright-test/README.md).
+
+```bash
+cd playwright-test
+npm install
+npx playwright install
+npm test
+```
+
+### Test Documentation
+
+The test framework includes comprehensive documentation:
+
+- [Test Framework README](./playwright-test/README.md) - Setup instructions and framework overview
+- [Test Cases](./playwright-test/test-documentation/spree-commerce-test-cases.md) - Detailed test scenarios
+- [Test Coverage Strategy](./playwright-test/test-documentation/spree-commerce-test-coverage-summary.md) - Risk assessment and prioritization
+
+### Framework Capabilities
+
+The framework includes several advanced capabilities:
+
+- **Network Mocking** - Intercepts network requests to simulate successful payment processing
+- **HTML Mocking** - Generates dynamic HTML content to validate order confirmations
+- **Error Handling** - Robust selectors that adapt to different page structures
+- **Test Parameterization** - Data-driven tests with centralized test data
+- **Reusable Components** - Well-structured page objects and utility functions
+
+For more details on these capabilities, see the Playwright test framework README.
