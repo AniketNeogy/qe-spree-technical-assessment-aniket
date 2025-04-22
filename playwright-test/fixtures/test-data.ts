@@ -78,7 +78,7 @@ export const TestData = {
     tshirt: {
       name: 'Denim Shirt',
       category: 'Clothing',
-      price: 63.99
+      price: 92.99
     },
     mug: {
       name: 'Checked Shirt',
