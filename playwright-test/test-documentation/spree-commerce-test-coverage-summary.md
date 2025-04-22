@@ -46,24 +46,25 @@ Based on the risk assessment, test scenarios are prioritized as follows:
 
 ### High Priority
 
-1. **E2E-01: User Registration and Purchase (New User)**
+1. **E2E-01: User Registration and Purchase (New User)** ✅
    * Essential customer acquisition pathway
    * Combines account creation, authentication and purchase flows
    * Validates data persistence for registered users
 
-2. **E2E-02: Complete Purchase Flow (Guest User)**
+2. **E2E-02: Complete Purchase Flow (Guest User)** ✅
    * Critical revenue path that must function flawlessly
    * Tests guest user is able to checkout successfully
 
-3. **E2E-03: Abandoned Cart Recovery**
+3. **E2E-03: Abandoned Cart Recovery** ✅
    * Significant revenue recovery opportunity
    * Tests session persistence and state management
 
-4. **E2E-04: Payment Processing Validation (API-based)**
+4. **E2E-04: Payment Processing Validation (API-based)** ✅
    * Direct financial impact
    * Security and compliance implications
    * Tests API endpoints for payment processing
    * Validates API response structure and error handling
+   * Implemented with a robust API client featuring fallback mechanisms
 
 5. **AM-01: Profile and Preferences Management**
    * Customer retention and data integrity
@@ -99,27 +100,29 @@ Based on the risk assessment, test scenarios are prioritized as follows:
 
 ## Primary Automation Candidates
 
-The following scenarios are recommended for immediate implementation in Playwright:
+The following scenarios have been implemented in Playwright:
 
-1. **E2E-01: User Registration and Purchase (New User)**
-   * **Implementation Priority**: Highest
-   * **Rationale**: Validates new user onboarding and purchasing
-   * **Technical Approach**: Sequential flow with account creation, authentication validation, and purchase completion
+1. **E2E-01: User Registration and Purchase (New User)** ✅
+   * **Implementation Status**: Completed
+   * **Key Features**: Sequential flow with account creation, authentication validation, and purchase completion
 
-2. **E2E-02: Complete Purchase Flow (Guest User)**
-   * **Implementation Priority**: Highest
-   * **Rationale**: Validates the core revenue path
-   * **Technical Approach**: End-to-end test with guest user makes purchase
+2. **E2E-02: Complete Purchase Flow (Guest User)** ✅
+   * **Implementation Status**: Completed
+   * **Key Features**: End-to-end test with guest user purchase flow
 
-3. **E2E-03: Abandoned Cart Recovery**
-   * **Implementation Priority**: High
-   * **Rationale**: Tests critical state persistence functionality
-   * **Technical Approach**: Multi-session test with browser context management
+3. **E2E-03: Abandoned Cart Recovery** ✅
+   * **Implementation Status**: Completed
+   * **Key Features**: Multi-session test with browser context management
 
-4. **E2E-04: Payment Processing Validation (API-based)**
-   * **Implementation Priority**: High
-   * **Rationale**: Ensures payment processing integrity and API reliability
-   * **Technical Approach**: Direct API calls to backend services, mocking payment provider responses, validation of success and error scenarios
+4. **E2E-04: Payment Processing Validation (API-based)** ✅
+   * **Implementation Status**: Completed
+   * **Key Features**: 
+     * Direct API client implementation
+     * Handles multiple payment methods (credit card, check)
+     * Validates successful and failed payment scenarios
+     * Includes mock mode for reliable testing
+     * Intelligent error handling with useful diagnostics
+     * API validation of order status after payment
 
 **Note**: The reason `AM-01` is not picked is because the number of occurrences of the user flows related to other use cases will be much higher than `AM-01`. 
 Hence considering the regression benefits, `E2E-01` to `E2E-04` were picked up for automation.

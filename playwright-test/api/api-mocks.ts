@@ -20,10 +20,8 @@ export class ApiMocks {
     productName: string,
     productPrice: number
   ): Promise<string> {
-    // Generate a random order number
     const orderNumber = `R${Math.floor(Math.random() * 1000000000)}`;
     
-    // Create mock HTML for the order confirmation page
     const mockOrderConfirmationHTML = `
       <!DOCTYPE html>
       <html>
@@ -70,9 +68,6 @@ export class ApiMocks {
       </html>
     `;
     
-    // Set up route interceptors
-    
-    // 1. Handle the payment update endpoint
     await page.route("**/checkout/**/update/payment", async (route) => {
       await route.fulfill({
         status: 200,
@@ -81,7 +76,6 @@ export class ApiMocks {
       });
     });
     
-    // 2. Handle the confirm endpoint with redirect to complete
     await page.route("**/checkout/**/update/confirm", async (route) => {
       await route.fulfill({
         status: 200,
@@ -93,17 +87,14 @@ export class ApiMocks {
       });
     });
     
-    // 3. Intercept all checkout page requests after payment - redirect to complete
     await page.route("**/checkout/**", async (route) => {
       const url = route.request().url();
       
-      // Skip interception if already going to complete page
       if (url.includes('/complete')) {
         await route.continue();
         return;
       }
       
-      // If it's the payment page or any other checkout page
       if (route.request().method() === 'GET') {
         await route.fulfill({
           status: 302,
@@ -117,7 +108,6 @@ export class ApiMocks {
       }
     });
     
-    // 4. Mock the complete page with our HTML
     await page.route(`**/checkout/${orderToken}/complete`, async (route) => {
       await route.fulfill({
         status: 200,

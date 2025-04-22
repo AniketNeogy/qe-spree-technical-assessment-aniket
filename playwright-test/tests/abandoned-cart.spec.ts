@@ -5,7 +5,7 @@ import { CheckoutPage } from '../page-objects/checkout-page';
 import { DeliveryPage } from '../page-objects/delivery-page';
 import { TestData } from '../fixtures/test-data';
 import { ApiMocks } from '../api/api-mocks';
-import { ApiClient } from '../api/api-client';
+import { APIClient } from '../api/api-client';
 
 /**
  * E2E-03: Abandoned Cart Recovery

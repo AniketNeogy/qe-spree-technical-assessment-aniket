@@ -24,6 +24,7 @@ jobs:
           - { name: 'Abandoned Cart', file: 'tests/abandoned-cart.spec.ts' }
           - { name: 'User Registration', file: 'tests/user-registration-purchase.spec.ts' }
           - { name: 'Guest Purchase', file: 'tests/guest-user-purchase.spec.ts' }
+          - { name: 'API Payment Validation', file: 'tests/api-payment-validation.spec.ts' }
     
     steps:
     - uses: actions/checkout@v3
@@ -121,7 +122,7 @@ jobs:
           echo "<h1>Test Reports</h1><ul>" >> merged-playwright-report/index.html
           
           # Create links to each individual report
-          for shard in "Abandoned Cart" "User Registration" "Guest Purchase"; do
+          for shard in "Abandoned Cart" "User Registration" "Guest Purchase" "API Payment Validation"; do
             if [ -d "all-artifacts/playwright-report-$shard/playwright-report" ]; then
               mkdir -p "merged-playwright-report/$shard"
               cp -r "all-artifacts/playwright-report-$shard/playwright-report"/* "merged-playwright-report/$shard/"

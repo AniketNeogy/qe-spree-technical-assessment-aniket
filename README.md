@@ -145,7 +145,10 @@ The framework includes high-priority test scenarios selected through risk assess
 1. **User Registration and Purchase (New User)** - Tests account creation and purchase flow
 2. **Complete Purchase Flow (Guest User)** - Tests guest checkout experience with payment processing
 3. **Abandoned Cart Recovery** - Tests cart persistence across sessions
-4. **Payment Processing Validation** - Tests payment scenarios with mocked responses
+4. **Payment Processing Validation (API-based)** - Tests payment scenarios with mocked responses
+   - Implemented with a robust API client that supports multiple payment methods
+   - Features intelligent error handling and fallback to mock mode when needed
+   - Validates successful payments, declined cards, and alternative payment methods
 5. **Product Discovery and Filtering** - Validates search and filtering functionality
 
 ### Running Tests
@@ -159,6 +162,13 @@ npx playwright install
 npm test
 ```
 
+To run the API tests specifically:
+
+```bash
+cd playwright-test
+npx playwright test tests/api-payment-validation.spec.ts
+```
+
 ### Test Documentation
 
 The test framework includes comprehensive documentation:
@@ -169,29 +179,22 @@ The test framework includes comprehensive documentation:
 
 ## Continuous Integration
 
-This project includes a CI pipeline built with GitHub Actions that automatically runs tests on code changes and publishes test reports to GitHub Pages.
+This project includes a CI pipeline built with GitHub Actions that automatically runs tests on code changes
 
 ### GitHub Actions Workflows
 
-- **Playwright Tests**: Runs all tests in parallel using sharding, merges the reports, and publishes them to GitHub Pages
-- **Delete Branch Reports**: Automatically removes test reports for deleted branches to keep the repository clean
+- **Playwright Tests**: Runs all tests in parallel using sharding across multiple environments:
+  - User Registration and Purchase
+  - Guest Purchase Flow
+  - Abandoned Cart Recovery
+  - Payment Processing API Validation
+- **Report Generation**: Merges test reports from all shards and publishes them
+- **Environment Setup**: Automatically configures the application environment with sample data
+- **Cross-Browser Testing**: Tests run on multiple browsers in parallel
 
 ### Viewing Test Reports
 
-After tests run in CI, a link to the HTML report will be available in the GitHub Actions workflow summary. The reports are also accessible via GitHub Pages at:
-
-```
-https://{username}.github.io/{repository}/reports/{branch}/{run-id}/{attempt}
-```
-
-### Setting Up GitHub Pages for Reports
-
-To enable GitHub Pages reporting:
-
-1. Push your code to GitHub
-2. The first workflow run will automatically create a `gh-pages` branch
-3. Go to your repository settings → Pages
-4. Set the source to the `gh-pages` branch and save
+After tests run in CI, a link to the HTML report will be available in the GitHub Actions workflow summary. 
 
 ### CI Benefits
 
@@ -200,4 +203,4 @@ To enable GitHub Pages reporting:
 - **Historical Data**: Reports are preserved for each branch and run
 - **Easy Debugging**: Detailed test reports help identify issues quickly
 
-For more information about the CI setup, see the workflow configuration in `.github/workflows/`.
+For more information about the CI setup, see the workflow configuration in `.github/workflows/playwright.yml`.

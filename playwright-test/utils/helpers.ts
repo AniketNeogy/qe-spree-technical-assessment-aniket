@@ -12,7 +12,6 @@ export class Helpers {
    */
   static async waitForPageStable(page: Page, timeout = 30000): Promise<void> {
     try {
-      // Try to wait for network idle, but don't fail if it times out
       await page.waitForLoadState('networkidle', { timeout }).catch(() => {
         console.log('Network idle timeout, continuing anyway');
       });
@@ -21,13 +20,11 @@ export class Helpers {
     }
 
     try {
-      // Always ensure DOM content is loaded
       await page.waitForLoadState('domcontentloaded', { timeout: 10000 });
     } catch (error) {
       console.log('Error waiting for DOM content, continuing anyway:', error);
     }
     
-    // Wait a bit more to ensure any client-side animations have completed
     await page.waitForTimeout(500);
   }
 
