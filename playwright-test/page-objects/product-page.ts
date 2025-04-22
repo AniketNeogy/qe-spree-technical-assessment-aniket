@@ -96,7 +96,6 @@ export class ProductPage extends BasePage {
     await this.page.getByRole('button', { name: 'Add To Cart' }).click();
     // Wait for the cart modal or page to appear
     await Helpers.waitForPageStable(this.page);
-    await this.goToCart();
     return new CartPage(this.page);
   }
 
