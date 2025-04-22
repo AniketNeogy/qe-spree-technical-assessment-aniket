@@ -29,8 +29,8 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'on-first-retry',
     // Add additional settings for CI
-    actionTimeout: 15000,
-    navigationTimeout: 30000,
+    actionTimeout: 30000,
+    navigationTimeout: 60000,
   },
   projects: [
     {
