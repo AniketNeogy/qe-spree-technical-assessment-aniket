@@ -99,6 +99,7 @@ jobs:
         run: |
           npm install -g @playwright/test
           npm install -g junit-report-merger
+          npm install -g playwright-merge-html-reports
           
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -113,24 +114,33 @@ jobs:
           echo "HTML report files:"
           find all-artifacts -path "*/playwright-report/*" -type f | grep -v "trace" | head -20
         
-      - name: Create HTML report directory
-        run: mkdir -p merged-playwright-report
-        
-      - name: Generate simple merged HTML report
+      - name: Create report directories
         run: |
-          echo "<html><head><title>All Test Reports</title></head><body>" > merged-playwright-report/index.html
-          echo "<h1>Test Reports</h1><ul>" >> merged-playwright-report/index.html
-          
-          # Create links to each individual report
+          mkdir -p merged-playwright-report
+          mkdir -p individual-reports
+        
+      - name: Extract individual reports
+        run: |
           for shard in "Abandoned Cart" "User Registration" "Guest Purchase" "API Payment Validation"; do
             if [ -d "all-artifacts/playwright-report-$shard/playwright-report" ]; then
-              mkdir -p "merged-playwright-report/$shard"
-              cp -r "all-artifacts/playwright-report-$shard/playwright-report"/* "merged-playwright-report/$shard/"
-              echo "<li><a href='./$shard/index.html'>$shard Tests</a></li>" >> merged-playwright-report/index.html
+              mkdir -p "individual-reports/$shard"
+              cp -r "all-artifacts/playwright-report-$shard/playwright-report"/* "individual-reports/$shard/"
             fi
           done
           
-          echo "</ul></body></html>" >> merged-playwright-report/index.html
+      - name: Create merged HTML report using playwright-merge-html-reports
+        run: |
+          # Find all index.html files from individual reports
+          report_dirs=$(find individual-reports -type d -maxdepth 1 -mindepth 1)
+          
+          if [ -n "$report_dirs" ]; then
+            # Run the merge utility
+            echo "Merging reports from: $report_dirs"
+            npx playwright-merge-html-reports --config '{"outputFolderName":"merged-playwright-report"}' $report_dirs
+          else
+            # Create a placeholder if no reports found
+            echo "<html><head><title>No Test Reports Available</title></head><body><h1>No Test Reports Available</h1></body></html>" > merged-playwright-report/index.html
+          fi
         
       - name: Merge JUnit reports
         run: |
