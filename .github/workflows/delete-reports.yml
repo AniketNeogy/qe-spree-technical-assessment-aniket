@@ -41,7 +41,14 @@ jobs:
         run: |
           cd $BRANCH_REPORTS_DIR/..
           
+          # Delete the branch directory
           rm -rf ${{ github.event.ref }}
+          
+          # Update the branch listing JSON file
+          if [ -d "reports" ]; then
+            find reports -maxdepth 1 -type d | grep -v "^reports$" | sed 's|reports/||' | jq -R . | jq -s '{"directories": .}' > reports/.listing.json
+          fi
+          
           git add .
           git commit -m "workflow: remove all reports for branch ${{ github.event.ref }}"
           
@@ -57,4 +64,12 @@ jobs:
               echo "Successfully removed HTML reports from repo."
               exit 0
             fi
-          done 
+          done
+      
+      - name: Output Status
+        run: |
+          if [ "$BRANCH_REPORTS_EXIST" = "true" ]; then
+            echo "::notice title=🧹 Cleanup Complete::Successfully removed reports for branch '${{ github.event.ref }}'"
+          else
+            echo "::notice title=ℹ️ No Action Needed::No reports found for branch '${{ github.event.ref }}'"
+          fi 

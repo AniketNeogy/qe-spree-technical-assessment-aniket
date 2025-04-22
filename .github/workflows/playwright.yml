@@ -1,9 +1,10 @@
 name: Playwright Tests
 on:
   push:
-    branches-ignore: [main, gh-pages]
+    branches: ['**']  # Run on any branch
   pull_request:
     branches: [main]
+  workflow_dispatch:  # Allow manual triggering from GitHub UI
 
 # Set concurrency to ensure only one workflow runs at a time per branch
 concurrency:
@@ -44,10 +45,18 @@ jobs:
       - name: Run Playwright tests
         run: |
           cd playwright-test
-          npx playwright test --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          npx playwright test --shard=${{ matrix.shard }}/${{ matrix.total-shards }} --reporter=dot,github,json
         env:
           CI: true
           TEST_WORKER_INDEX: ${{ matrix.shard }}
+      
+      - name: Upload test results for GitHub Actions Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-${{ matrix.shard }}
+          path: playwright-test/test-results.json
+          retention-days: 30
       
       - name: Upload HTML report for this shard
         if: always()
@@ -64,6 +73,36 @@ jobs:
           name: playwright-results-${{ matrix.shard }}
           path: playwright-test/test-results/
           retention-days: 30
+
+  report:
+    name: Generate GitHub Check Report
+    needs: [test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Download test results
+        uses: actions/download-artifact@v3
+        with:
+          path: all-artifacts
+      
+      - name: Merge test results for report
+        run: |
+          npm install -g junit-report-merger
+          mkdir -p junit-reports
+          find all-artifacts -name test-results*.json -type f -exec cp {} junit-reports/ \;
+          ls -la junit-reports/
+      
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: "Playwright Test Results"
+          files: |
+            junit-reports/*.json
+          report_individual_runs: true
+          deduplicate_classes_by_file_name: false
 
   merge_reports:
     name: Merge Test Reports
@@ -164,67 +203,4 @@ jobs:
         run: |
           FULL_HTML_REPORT_URL=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/$HTML_REPORT_URL_PATH
           
-          echo "::notice title=📋 Published Playwright Test Report::$FULL_HTML_REPORT_URL"
-
-# This workflow will be triggered when a branch is deleted to clean up the reports
----
-name: Delete Branch Reports
-
-on:
-  delete:
-    branches-ignore: [main, gh-pages]
-
-# Ensures that currently running Playwright workflow of deleted branch gets cancelled
-concurrency:
-  group: ${{ github.event.ref }}
-  cancel-in-progress: true
-
-jobs:
-  delete_reports:
-    name: Delete Reports
-    runs-on: ubuntu-latest
-    env:
-      # Contains all reports for deleted branch
-      BRANCH_REPORTS_DIR: reports/${{ github.event.ref }}
-    steps:
-      - name: Checkout GitHub Pages Branch
-        uses: actions/checkout@v3
-        with:
-          ref: gh-pages
-      
-      - name: Set Git User
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      
-      - name: Check for workflow reports
-        run: |
-          if [ ! -d "$BRANCH_REPORTS_DIR" ] || [ -z "$(ls -A $BRANCH_REPORTS_DIR 2>/dev/null)" ]; then
-            echo "BRANCH_REPORTS_EXIST=false" >> $GITHUB_ENV
-          else
-            echo "BRANCH_REPORTS_EXIST=true" >> $GITHUB_ENV
-          fi
-      
-      - name: Delete reports from repo for branch
-        if: ${{ env.BRANCH_REPORTS_EXIST == 'true' }}
-        timeout-minutes: 3
-        run: |
-          cd $BRANCH_REPORTS_DIR/..
-          
-          rm -rf ${{ github.event.ref }}
-          git add .
-          git commit -m "workflow: remove all reports for branch ${{ github.event.ref }}"
-          
-          while true; do
-            git pull --rebase
-            if [ $? -ne 0 ]; then
-              echo "Failed to rebase. Please review manually."
-              exit 1
-            fi
-            
-            git push
-            if [ $? -eq 0 ]; then
-              echo "Successfully removed HTML reports from repo."
-              exit 0
-            fi
-          done 
+          echo "::notice title=📋 Published Playwright Test Report::$FULL_HTML_REPORT_URL" 
