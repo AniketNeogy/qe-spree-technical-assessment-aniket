@@ -204,3 +204,31 @@ After tests run in CI, a link to the HTML report will be available in the GitHub
 - **Easy Debugging**: Detailed test reports help identify issues quickly
 
 For more information about the CI setup, see the workflow configuration in `.github/workflows/playwright.yml`.
+
+## Use of AI in this Project
+
+The following components were created with AI assistance:
+
+- **Documentation**: Comprehensive README files and test documentation
+- **Code Documentation**: Addition of docstrings to TypeScript functions
+- **Text Review**: Spell-checking and grammar improvements
+
+### Prompts Used
+
+AI was prompted with specific instructions such as:
+
+```
+"Go through the project setup and generate me a comprehensive readme. The readme should be detailed enough for anyone new coming into the project to onboard themselves without much effort"
+```
+
+```
+"Go through the entire codebase and add docstrings to the functions as required"
+```
+
+### Reasoning
+
+The decision to use AI for these specific tasks was based on:
+
+1. **Time Optimization**: Outsourcing documentation and boilerplate writing allowed more focus on the technical implementation and test architecture
+2. **Consistency**: Ensuring uniform documentation style across the codebase
+3. **Focus on Technical Value**: Allowing more time for developing robust test cases and quality framework architecture
