@@ -9,8 +9,15 @@ on:
 
 jobs:
   test:
-    name: Run Playwright Tests
+    name: Run Playwright Tests - ${{ matrix.shard.name }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard:
+          - { name: 'Abandoned Cart', file: 'tests/abandoned-cart.spec.ts' }
+          - { name: 'User Registration', file: 'tests/user-registration-purchase.spec.ts' }
+          - { name: 'Guest Purchase', file: 'tests/guest-user-purchase.spec.ts' }
     
     steps:
     - uses: actions/checkout@v3
@@ -54,24 +61,73 @@ jobs:
         npm install
         npx playwright install --with-deps
         
-    - name: Run Playwright tests
+    - name: Run Playwright test shard
       working-directory: ./playwright-test
-      run: npx playwright test
+      run: npx playwright test ${{ matrix.shard.file }}
       
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: playwright-report
-        path: playwright-test/playwright-report/
+        name: playwright-report-${{ matrix.shard.name }}
+        path: |
+          playwright-test/playwright-report/
+          playwright-test/results.xml
+          playwright-test/test-results/
+
+  merge-reports:
+    name: Merge Test Reports
+    needs: test
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: Install Playwright dependencies
+        run: |
+          npm install -g @playwright/test
+          
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
+          
+      - name: Display structure of downloaded files
+        run: find all-artifacts -type f | sort
         
-    - name: Test Report
-      uses: ctrf-io/github-test-reporter@v1
-      if: always()
-      with:
-        report-path: playwright-test/results.xml
-        title: Playwright Tests
-        summary: true 
-        test-report: true
-        test-list-report: true
-        show-all-tests: true
+      - name: Create directories for merged reports
+        run: |
+          mkdir -p merged-report
+          mkdir -p merged-results/test-results
+          
+      - name: Copy test results to merged directory
+        run: |
+          find all-artifacts -path "*/test-results/*" -type f -exec cp {} merged-results/test-results/ \;
+      
+      - name: Merge HTML reports
+        run: npx playwright merge-reports --reporter html ./merged-results
+        
+      - name: Generate JUnit report from merged results
+        run: npx playwright test --reporter=junit:merged-results.xml --project='' --pass
+        
+      - name: Upload merged report
+        uses: actions/upload-artifact@v4
+        with:
+          name: merged-playwright-report
+          path: merged-report
+          
+      - name: Test Report
+        uses: ctrf-io/github-test-reporter@v1
+        if: always()
+        with:
+          report-path: merged-results.xml
+          title: Playwright Tests
+          summary: true 
+          test-report: true
+          test-list-report: true
+          show-all-tests: true
