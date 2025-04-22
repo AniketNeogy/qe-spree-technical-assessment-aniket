@@ -16,6 +16,20 @@ jobs:
     name: Run Playwright Tests
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: spree_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
       fail-fast: false
       matrix:
@@ -25,6 +39,73 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      # Setup Ruby for Spree application
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.0'
+          bundler-cache: true
+      
+      # Install system dependencies for Spree
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libvips-dev libpq-dev
+      
+      # Setup and start the Spree application
+      - name: Setup Spree Application
+        run: |
+          # Configure database
+          cp config/database.yml.github-actions config/database.yml || echo "Database config not found, using default"
+          
+          # Create database.yml if it doesn't exist
+          if [ ! -f "config/database.yml" ]; then
+            mkdir -p config
+            cat > config/database.yml << EOF
+          default: &default
+            adapter: postgresql
+            encoding: unicode
+            host: localhost
+            port: 5432
+            username: postgres
+            password: postgres
+            pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+          
+          development:
+            <<: *default
+            database: spree_development
+          
+          test:
+            <<: *default
+            database: spree_test
+          
+          production:
+            <<: *default
+            database: spree_production
+          EOF
+          fi
+          
+          # Install Ruby dependencies
+          bundle install
+          
+          # Setup database
+          bundle exec rails db:create
+          bundle exec rails db:migrate
+          
+          # Load sample data
+          bundle exec rails spree_sample:load
+      
+      # Start the Spree server in the background
+      - name: Start Spree Server
+        run: |
+          bundle exec rails server -p 3000 -d
+          
+          # Wait for the server to be ready
+          echo "Waiting for server to be ready..."
+          timeout 60 bash -c 'until curl -s http://localhost:3000/ > /dev/null; do sleep 1; done' || (echo "Server failed to start" && exit 1)
+          echo "Server is ready!"
+      
+      # Now setup Node and Playwright for testing
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
