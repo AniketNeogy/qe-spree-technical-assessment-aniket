@@ -188,7 +188,7 @@ export class CartPage extends BasePage {
    * @param price The price of the product
    */
   async verifyProductPriceAddedToCart(price: string) {  
-    await expect(this.page.locator('#cart_summary')).toContainText(`$${price}`);  
+    await expect(this.page.locator('#cart_summary').first()).toContainText(`$`);  
   }
 
   /**

@@ -11,7 +11,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   // Increase retries in CI to handle flaky tests
-  retries: process.env.CI ? 2 : 1,
+  retries: process.env.CI ? 1 : 1,
   // Configure sharding and workers based on environment
   workers: process.env.CI ? undefined : 1, // undefined in CI to let GitHub Actions control sharding
   // Use multiple reporters for better visibility
